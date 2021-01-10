@@ -7,7 +7,7 @@
     "build": "gulp",
     "watch": "gulp watch",
     "clean": "gulp clean-all",
-    "#build-pages" :"gulp build-pages"
+    "#build-pages": "gulp build-pages"
   },
   "keywords": [],
   "author": "",
