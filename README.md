@@ -1,8 +1,6 @@
 # gulp-dev-env
 
 
-npm i -g gulp-cli
+npm i -g gulp-cli # first time
 
-npm i -g gulp
-
-npm i gulp -D
+npm i
