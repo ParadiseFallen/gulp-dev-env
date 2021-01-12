@@ -1,12 +1,11 @@
 const projectPath = './project'                                 //* path to project  
 const srcFolder = `${projectPath}/src`                          //* src folder
 const buildFolder = `${projectPath}/build`                                                
-const mainScript = 'main.js'                                    
 
 export default {
     "build": {
         "folder": buildFolder,
-        "pages":`${buildFolder}/pages`,
+        "pages":`${buildFolder}`,
         "styles": `${buildFolder}/styles`,
         "scripts": `${buildFolder}/scripts`,
         "img": `${buildFolder}/img`,
