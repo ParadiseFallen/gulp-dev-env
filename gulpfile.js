@@ -2,7 +2,7 @@
 //* https://webdesign-master.ru/blog/docs/gulp-documentation.html
 //* filemap for project
 import fileMap from './filemap.js'
-import serverCfg from './servercfg.js'
+import serverInit from './serverInit.js'
 //* base gulp
 import gulp from 'gulp'
 //* autoupdate browser
@@ -123,7 +123,7 @@ task('watch-img', () =>
 task('watch-fonts', () => 
     watch(`${fileMap.src.fonts}/**/*`, series('build-fonts')))
 
-task('live-server', () => browserSync.init(serverCfg))
+task('live-server', serverInit)
 
 // * Watch full project
 task('watch', series('default', parallel('live-server', 'watch-styles', 'watch-pages', 'watch-scripts', 'watch-img')))
