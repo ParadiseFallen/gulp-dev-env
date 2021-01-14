@@ -25,6 +25,7 @@ import clean from 'gulp-clean'
 import image from 'gulp-image'
 import rename from 'gulp-rename'
 import gulpIf from 'gulp-if'
+import buildContext from './buildContext.js'
 //* src => стартовая локация. src('./styles') далее использовать .pipe(plugin())
 //* dest => цель. dest('./styles') использовать в самом конце
 //* task => объявить задачу task(taskName,function)
@@ -53,7 +54,11 @@ task('filemap', async () => {
 task('build-pages', () => src(`${fileMap.src.pages}/**/!(_*).html`)
     .pipe(fileInclude({
         prefix: '@@',
-        basepath: '@file'
+        basepath: '@file',
+        indent:true,
+        context : {
+            context: buildContext
+        }
     }))
     .pipe(stripComments())
     .pipe(gulpIf(isReleaseBuild, minifyHtml()))
@@ -98,9 +103,13 @@ task('build-fonts', () =>
     src(`${fileMap.src.fonts}/**/*`)
         .pipe(dest(fileMap.build.fonts))
         .pipe(browserSync.stream())
-
 )
-task('default', parallel('build-styles', 'build-pages', 'build-scripts', 'build-img'))
+
+task('build-resources',()=>src(fileMap.src.resources).pipe(dest(fileMap.build.resources)))
+
+task('default', parallel('build-resources','build-styles', 'build-pages', 'build-scripts', 'build-img','build-fonts'))
+
+task('build',series('default'))
 //#endregion
 
 //#region Watch
