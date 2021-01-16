@@ -18,7 +18,8 @@ import sourcemaps from 'gulp-sourcemaps'
 import minifyHtml from 'gulp-htmlmin'
 import sass from 'gulp-sass'
 import autoPrefixer from 'gulp-autoprefixer'
-import mediaGroup from 'gulp-group-css-media-queries'
+import mediaGroup from 'crlab-gulp-combine-media-queries'
+
 import cleanCss from 'gulp-clean-css'
 import stripComments from 'gulp-strip-comments'
 import clean from 'gulp-clean'
@@ -39,6 +40,7 @@ const { src, dest, task, parallel, series, watch } = gulp
 const lastArgument = process.argv[process.argv.length - 1];
 const isReleaseBuild = lastArgument == '-r' || lastArgument == '-release'
 console.log(`\tIs release build : ${isReleaseBuild}. To enable add -r or -release \n\tas last flag`)
+
 //#endregion
 
 //#region  TASKS
@@ -55,8 +57,8 @@ task('build-pages', () => src(`${fileMap.src.pages}/**/!(_*).html`)
     .pipe(fileInclude({
         prefix: '@@',
         basepath: '@file',
-        indent:true,
-        context : {
+        indent: true,
+        context: {
             context: buildContext
         }
     }))
@@ -66,30 +68,36 @@ task('build-pages', () => src(`${fileMap.src.pages}/**/!(_*).html`)
     .pipe(browserSync.stream())
 )
 
-task('build-styles', () => {
-    return src(`${fileMap.src.styles}/!(_*).+(scss|sass)`)
+task('build-styles', () =>
+    src(`${fileMap.src.styles}/!(_*).+(scss|sass)`)
         .pipe(gulpIf(!isReleaseBuild, sourcemaps.init()))
         .pipe(sass().on('error', sass.logError))
+        .pipe(mediaGroup())
         .pipe(autoPrefixer({
             "cascade": true,
             "overrideBrowserslist": ["last 5 versions"]
         }))
-        .pipe(mediaGroup())
-        .pipe(pipeIf(isReleaseBuild, cleanCss(),
+        .pipe(pipeIf(isReleaseBuild,
+            cleanCss(
+                {
+
+                }
+            ),
             cleanCss({
-                "format": "beautify"
+                "format": "beautify",
+                level: 2
             })))
-        .pipe(gulpIf(!isReleaseBuild, sourcemaps.write('./')))
+        .pipe(gulpIf(!isReleaseBuild, sourcemaps.write()))
         .pipe(dest(fileMap.build.styles))
         .pipe(browserSync.stream())
-})
+)
 
-task('build-scripts', () => {
-    return src(`${fileMap.src.scripts}/!(_*).+(js|ts)`)
+task('build-scripts', () =>
+    src(`${fileMap.src.scripts}/!(_*).+(js|ts)`)
         .pipe(stripComments())
         .pipe(dest(fileMap.build.scripts))
         .pipe(browserSync.stream())
-})
+)
 
 task('build-img', () =>
     src(`${fileMap.src.img}/**/*.+(png|jpg|gif|ico|svg|webp)`)
@@ -105,11 +113,11 @@ task('build-fonts', () =>
         .pipe(browserSync.stream())
 )
 
-task('build-resources',()=>src(fileMap.src.resources).pipe(dest(fileMap.build.resources)))
+task('build-resources', () => src(fileMap.src.resources, { allowEmpty: true }).pipe(dest(fileMap.build.resources)))
 
-task('default', parallel('build-resources','build-styles', 'build-pages', 'build-scripts', 'build-img','build-fonts'))
+task('default', parallel('build-resources', 'build-styles', 'build-pages', 'build-scripts', 'build-img', 'build-fonts'))
 
-task('build',series('default'))
+task('build', series('default'))
 //#endregion
 
 //#region Watch
@@ -119,17 +127,17 @@ task('watch-styles', () =>
     watch(`${fileMap.src.styles}/**/*.+(scss|sass)`, series('build-styles')))
 
 // * Watch only pages .pug .html files
-task('watch-pages', () => 
+task('watch-pages', () =>
     watch(`${fileMap.src.pages}/**/*.+(html|pug)`, series('build-pages')))
 // * Watch only pages .pug .html files
-task('watch-scripts', () => 
+task('watch-scripts', () =>
     watch(`${fileMap.src.scripts}/**/*.+(js|ts)`, series('build-scripts')))
 // * Watch only pages .pug .html files
-task('watch-img', () => 
+task('watch-img', () =>
     watch(`${fileMap.src.img}/**/*.+(png|jpg|gif|ico|svg|webp)`, series('build-img')))
 
 // * Watch only pages .pug .html files
-task('watch-fonts', () => 
+task('watch-fonts', () =>
     watch(`${fileMap.src.fonts}/**/*`, series('build-fonts')))
 
 task('live-server', serverInit)

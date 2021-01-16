@@ -9,12 +9,12 @@ export default {
         "styles": `${srcFolder}/styles`,
         "scripts": `${srcFolder}/scripts`,
         "img": `${srcFolder}/img`,
-        "fonts": `${srcFolder}/fonts/*.ttf`,
+        "fonts": `${srcFolder}/fonts`,
         "resources": `${srcFolder}/resources`
     },
     "build": {
         "folder": buildFolder,
-        "pages": `${buildFolder}`,
+        "pages": `${buildFolder}/pages`,
         "styles": `${buildFolder}/styles`,
         "scripts": `${buildFolder}/scripts`,
         "img": `${buildFolder}/img`,
