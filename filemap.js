@@ -1,6 +1,6 @@
 const projectPath = './project'                                 //* path to project  
 const srcFolder = `${projectPath}/src`                          //* src folder
-const buildFolder = `${projectPath}/build`                                                
+const buildFolder = `${projectPath}/build`       
 
 export default {
     "src": {

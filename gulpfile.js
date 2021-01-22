@@ -52,21 +52,27 @@ task('filemap', async () => {
 
 //#region BUILD
 
+async function buildHtml()
+{
+    return src(`${fileMap.src.pages}/**/!(_*).+(html|php)`)
+        .pipe(fileInclude({
+            prefix: '@@',
+            basepath: '@file',
+            indent: true,
+            context: {
+                context: buildContext
+            }
+        }))
+        .pipe(stripComments())
+        .pipe(gulpIf(isReleaseBuild, minifyHtml()))
+        .pipe(dest(`${fileMap.build.pages}/`))
+        .pipe(browserSync.stream())
+}
+
+
+
 // * Build development 
-task('build-pages', () => src(`${fileMap.src.pages}/**/!(_*).html`)
-    .pipe(fileInclude({
-        prefix: '@@',
-        basepath: '@file',
-        indent: true,
-        context: {
-            context: buildContext
-        }
-    }))
-    .pipe(stripComments())
-    .pipe(gulpIf(isReleaseBuild, minifyHtml()))
-    .pipe(dest(`${fileMap.build.pages}/`))
-    .pipe(browserSync.stream())
-)
+task('build-pages',()=> buildHtml())
 
 task('build-styles', () =>
     src(`${fileMap.src.styles}/!(_*).+(scss|sass)`)
@@ -113,8 +119,11 @@ task('build-fonts', () =>
         .pipe(browserSync.stream())
 )
 
-task('build-resources', () => src(fileMap.src.resources, { allowEmpty: true }).pipe(dest(fileMap.build.resources)))
-
+task('build-resources', (done)=>{
+    src(`${fileMap.src.resources}/**/*.*`, { allowEmpty: true }).pipe(dest(fileMap.build.resources))
+    // src(`${fileMap.src.folder}/.htaccess`, { allowEmpty: true }).pipe(dest(fileMap.build.folder))
+    done()
+})
 task('default', parallel('build-resources', 'build-styles', 'build-pages', 'build-scripts', 'build-img', 'build-fonts'))
 
 task('build', series('default'))
@@ -128,7 +137,7 @@ task('watch-styles', () =>
 
 // * Watch only pages .pug .html files
 task('watch-pages', () =>
-    watch(`${fileMap.src.pages}/**/*.+(html|pug)`, series('build-pages')))
+    watch(`${fileMap.src.pages}/**/*.+(html|pug|php)`, series('build-pages')))
 // * Watch only pages .pug .html files
 task('watch-scripts', () =>
     watch(`${fileMap.src.scripts}/**/*.+(js|ts)`, series('build-scripts')))
@@ -140,10 +149,14 @@ task('watch-img', () =>
 task('watch-fonts', () =>
     watch(`${fileMap.src.fonts}/**/*`, series('build-fonts')))
 
+task('watch-resources', () =>
+    watch(`${fileMap.src.resources}/**/*`, series('build-resources')))
+
 task('live-server', serverInit)
 
 // * Watch full project
-task('watch', series('default', parallel('live-server', 'watch-styles', 'watch-pages', 'watch-scripts', 'watch-img')))
+task('watch', series('default', parallel('live-server', 'watch-styles', 'watch-pages', 'watch-scripts', 'watch-img', 'watch-resources')))
+
 
 //#endregion
 

@@ -2,7 +2,7 @@ import fileMap from './filemap.js'
 import browserSync from 'browser-sync'
 //* https://browsersync.io/docs/options
 //! STATIC = HTML CSS JS
-const isStaticServer = true;
+const isStaticServer = false
 let initTask
 if (isStaticServer)
 {
@@ -29,8 +29,7 @@ else
 {
     initTask =  () =>
         browserSync.init({
-            proxy: '',
-            notify: false
+            proxy: 'gulp-dev-env.com',
         })
 }
 export default initTask
